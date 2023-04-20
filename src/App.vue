@@ -32,9 +32,13 @@ function frameLoop(frame) {
     }
     clearTimeout(t);
     const playerCtx = framePlayer.value.getContext('2d');
-    playerCtx.drawImage(drawParsedImg(frame), 0, 0, 400, 250)
+    const img = new Image();
+    img.onload = () => {
+      playerCtx.drawImage(img, 0, 0, 400, 250)
+    }
+    img.src = frame;
     updateProgressBar(curFrameIdx.value / frames.length);
-    frameLoop(frames[curFrameIdx.value]);
+    frameLoop(framesBase64List[curFrameIdx.value]);
   }, frame.delay || 100);
 }
 
@@ -52,7 +56,7 @@ function updateProgressBar(value) {
   ctx.fillRect(0, 0, progressBar.value.width * progress.value, progressBar.value.height);
 }
 
-function drawParsedImg(frame) {
+function drawParsedImgBase64(frame) {
   const dims = frame.dims;
   const parsedImgCanvas = canvasCache.getCanvas(`${frame.width} * ${frame.height}`);
   const parsedImgCtx = parsedImgCanvas.getContext('2d');
@@ -63,7 +67,7 @@ function drawParsedImg(frame) {
   frameImgData.data.set(frame.patch);
   parsedImgCtx.putImageData(frameImgData, 0, 0);
 
-  return parsedImgCanvas;
+  return parsedImgCanvas.toDataURL();
 }
 
 function handleUrlInput(e) {
@@ -80,11 +84,11 @@ async function handleBtnClick() {
       console.log(frames);
 
       for (let frame of frames) {
-        const imgBase64 = drawParsedImg(frame).toDataURL();
+        const imgBase64 = drawParsedImgBase64(frame);
         framesBase64List.push(imgBase64);
       }
     });
-  frameLoop(frames[curFrameIdx.value]);
+  frameLoop(framesBase64List[curFrameIdx.value]);
 }
 
 
@@ -110,7 +114,11 @@ const handleMouseMove = (event) => {
   frameThumbnail.value.style.marginLeft = leftOffset + 'px';
   frameThumbnail.value.style.top = -100 + 'px';
   frameThumbnail.value.style.position = 'absolute';
-  frameThumbnail.value.getContext('2d').drawImage(drawParsedImg(frames[hoverFrameIdx]), 0, 0, 160, 100);
+  const img = new Image();
+  img.onload = () => {
+    frameThumbnail.value.getContext('2d').drawImage(img, 0, 0, 160, 100);
+  }
+  img.src = framesBase64List[hoverFrameIdx];
 };
 
 const handleMouseLeave = () => {
