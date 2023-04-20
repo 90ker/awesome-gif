@@ -9,6 +9,7 @@ let frames = reactive([]);
 let progress = ref(0);
 let curFrameIdx = ref(0);
 let showFrameThumbnail = ref(false);
+let framesBase64List = reactive([]);
 const progressBar = ref(null);
 const framePlayer = ref(null);
 const frameThumbnail = ref(null);
@@ -25,7 +26,7 @@ const canvasCache = reactive({
 
 function frameLoop(frame) {
   const t = setTimeout(() => {
-    curFrameIdx.value ++;
+    curFrameIdx.value++;
     if (curFrameIdx.value >= frames.length) {
       curFrameIdx.value = 0;
     }
@@ -79,10 +80,8 @@ async function handleBtnClick() {
       console.log(frames);
 
       for (let frame of frames) {
-        const img = new Image();
         const imgBase64 = drawParsedImg(frame).toDataURL();
-        img.src = imgBase64;
-        parsedImgWrapper.value.appendChild(img);
+        framesBase64List.push(imgBase64);
       }
     });
   frameLoop(frames[curFrameIdx.value]);
@@ -105,7 +104,7 @@ const handleMouseMove = (event) => {
   let leftOffset = x - 80;
   if (leftOffset < 0) {
     leftOffset = 0;
-  } else if (leftOffset > event.target.width - 160){
+  } else if (leftOffset > event.target.width - 160) {
     leftOffset = event.target.width - 160;
   }
   frameThumbnail.value.style.marginLeft = leftOffset + 'px';
@@ -127,14 +126,19 @@ const handleMouseLeave = () => {
     <canvas ref="framePlayer" width="400" height="250"></canvas>
     <div>
       <canvas ref="frameThumbnail" width="160" height="100" v-show="showFrameThumbnail"></canvas>
-      <canvas ref="progressBar" width="400" height="20" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave" @mouseenter="handleMouseEnter"></canvas>
+      <canvas ref="progressBar" width="400" height="20" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave"
+        @mouseenter="handleMouseEnter"></canvas>
     </div>
     <img class="logo" :src="gif_url" width="400" height="250" />
   </header>
 
   <main>
-    <div ref="parsedImgWrapper" class="parsed-img-wrapper">
-    </div>
+    <DraggableWrapper v-model="framesBase64List" ref="parsedImgWrapper" class="parsed-img-wrapper">
+      <template #item="{ element }">
+        <img :src="element" :key="element" />
+      </template>
+
+    </DraggableWrapper>
   </main>
 </template>
 
