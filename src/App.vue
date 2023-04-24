@@ -86,9 +86,8 @@ async function handleBtnClick() {
 
       frames.forEach((frame, idx) => {
         const imgBase64 = drawParsedImgBase64(frame);
-        framesBase64List.push({ data: imgBase64, id: idx});
-
-      })
+        framesBase64List.push({ data: imgBase64, id: 'origin' + idx });
+      });
     });
   frameLoop(framesBase64List[curFrameIdx.value].data);
 }
@@ -128,7 +127,6 @@ const handleMouseLeave = () => {
 }
 
 function onDragUpdate(evt) {
-  debugger
   const { oldIndex, newIndex, from, item } = evt;
   item.parentElement.removeChild(item);
   from.insertBefore(item, oldIndex === 0 ? from.children[0] : from.children[oldIndex - 1].nextSibling);
@@ -147,8 +145,11 @@ onMounted(() => {
   <header>
     <input class="url-input" @input="handleUrlInput" :value="url_input" />
     <button @click="handleBtnClick">传入图片</button>
-    <canvas ref="framePlayer" width="400" height="250"></canvas>
-    <div>
+    <div class="player-wrapper">
+      <canvas ref="framePlayer" width="400" height="250"></canvas>
+      <span >{{ `${curFrameIdx}/${framesBase64List.length}` }}</span>
+    </div>
+    <div class="control-area">
       <canvas ref="frameThumbnail" width="160" height="100" v-show="showFrameThumbnail"></canvas>
       <canvas ref="progressBar" width="400" height="20" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave"
         @mouseenter="handleMouseEnter"></canvas>
@@ -158,7 +159,10 @@ onMounted(() => {
 
     <div ref="dragWrapper" class="parsed-img-wrapper">
       <TransitionGroup name="parsed-img">
-        <img class="parsed-img-item" v-for="item in framesBase64List" :src="item.data" :key="item.id">
+        <div v-for="(item, index) in framesBase64List" :key="item.id">
+          <span>{{ index }}</span>
+          <img class="parsed-img-item" :src="item.data" >
+        </div>
       </TransitionGroup>
     </div>
 </template>

@@ -21,3 +21,4 @@
     - vue3 的TranstionGroup的move动画，是由数据变化触发的，而不是dom触发，所以要先改变数据
     - 而且必须重新把dom插入一遍才会生效动画
     - move动画是根据key来排序的,使用base64作为key的时候，出现了排序错乱的问题，随即提前用idx生成id作为key
+  - 给gif播放过程和图片增加索引
