@@ -194,8 +194,10 @@ onMounted(() => {
 
   <div ref="dragWrapper" class="parsed-img-wrapper">
     <TransitionGroup name="parsed-img">
-      <div v-for="(item, index) in framesBase64List" :key="item.id">
-        <span>{{ index }}</span>
+      <div v-for="(item, index) in framesBase64List" :key="item.id" class="img-item">
+        <div class="empty-cell"></div>
+        <div>{{ index }}</div>
+        <div class="add-handler"></div>
         <img class="parsed-img-item" :src="item.data">
       </div>
     </TransitionGroup>
@@ -223,13 +225,31 @@ header {
   width: 300px;
 }
 
+.img-item {
+  display: grid;
+  grid-template-columns: 10px auto;
+  grid-template-rows: 17.5px auto;
+}
+
+.empty-cell { 
+  grid-area: 1 / 1 / 2 / 2;
+}
+
 .parsed-img-wrapper {
   width: 930px;
   height: 100vh;
   overflow-y: scroll;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 10px;
+}
+.add-handler {
+  width: 9px;
+  height: auto;
+}
+
+.add-handler:hover {
+  cursor: cell;
+  background-color:cadetblue;
 }
 
 .parsed-img-move {
