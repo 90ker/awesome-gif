@@ -143,33 +143,80 @@ onMounted(() => {
 
 <template>
   <header>
-    <input class="url-input" @input="handleUrlInput" :value="url_input" />
-    <button @click="handleBtnClick">传入图片</button>
-    <div class="player-wrapper">
-      <canvas ref="framePlayer" width="400" height="250"></canvas>
-      <span >{{ `${curFrameIdx}/${framesBase64List.length}` }}</span>
+    <div class="materials">
+      <div class="title">
+        <h1>素材</h1>
+      </div>
+      <div class="content">
+        <img :src="gif_url" width="400" height="250" />
+        <div class="operator">
+          <input class="url-input" @input="handleUrlInput" :value="url_input" />
+          <button @click="handleBtnClick">传入图片</button>
+        </div>
+      </div>
+      <div class="arrow">
+        <svg t="1682320923579" class="arrow-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          p-id="7388" width="40" height="40">
+          <path
+          fill
+            d="M557.397333 167.204571l293.059048 293.059048L902.192762 512l-51.712 51.712-293.059048 293.083429-51.736381-51.712L762.148571 548.571429H121.904762v-73.142858h640.243809L505.660952 218.940952l51.736381-51.736381z"
+            p-id="7389"></path>
+        </svg>
+      </div>
     </div>
-    <div class="control-area">
-      <canvas ref="frameThumbnail" width="160" height="100" v-show="showFrameThumbnail"></canvas>
-      <canvas ref="progressBar" width="400" height="20" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave"
-        @mouseenter="handleMouseEnter"></canvas>
+    <div class="materials">
+      <div class="title">
+        <h1>成品</h1>
+      </div>
+      <div class="content">
+        <div class="player-wrapper">
+          <canvas ref="framePlayer" width="400" height="250"></canvas>
+          <div>{{ `${curFrameIdx}/${framesBase64List.length}` }}</div>
+          <div class="control-area">
+            <canvas ref="frameThumbnail" width="160" height="100" v-show="showFrameThumbnail"></canvas>
+            <canvas ref="progressBar" width="400" height="20" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave"
+              @mouseenter="handleMouseEnter"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">
+        <svg t="1682320923579" class="arrow-icon-reverse" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          p-id="7388" width="40" height="40">
+          <path
+            d="M557.397333 167.204571l293.059048 293.059048L902.192762 512l-51.712 51.712-293.059048 293.083429-51.736381-51.712L762.148571 548.571429H121.904762v-73.142858h640.243809L505.660952 218.940952l51.736381-51.736381z"
+            p-id="7389"></path>
+        </svg>
+      </div>
     </div>
-    <img class="logo" :src="gif_url" width="400" height="250" />
+
+
   </header>
 
-    <div ref="dragWrapper" class="parsed-img-wrapper">
-      <TransitionGroup name="parsed-img">
-        <div v-for="(item, index) in framesBase64List" :key="item.id">
-          <span>{{ index }}</span>
-          <img class="parsed-img-item" :src="item.data" >
-        </div>
-      </TransitionGroup>
-    </div>
+  <div ref="dragWrapper" class="parsed-img-wrapper">
+    <TransitionGroup name="parsed-img">
+      <div v-for="(item, index) in framesBase64List" :key="item.id">
+        <span>{{ index }}</span>
+        <img class="parsed-img-item" :src="item.data">
+      </div>
+    </TransitionGroup>
+  </div>
 </template>
 
 <style>
+.materials {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+
+
 header {
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  fill: #fff;
 }
 
 .url-input {
@@ -177,7 +224,9 @@ header {
 }
 
 .parsed-img-wrapper {
-  width: 900px;
+  width: 930px;
+  height: 100vh;
+  overflow-y: scroll;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 10px;
@@ -195,18 +244,8 @@ header {
   cursor: move;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    flex-direction: column;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.arrow-icon-reverse {
+  transform: rotate(180deg);
 }
+
 </style>
