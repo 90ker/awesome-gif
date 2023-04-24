@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, reactive } from 'vue';
 import { parseGIF, decompressFrames } from 'gifuct-js';
+import Sortable from 'sortablejs';
 
 let gif_url = ref('');
 let url_input = ref('https://img.soogif.com/MEjPTY0DMzVvOnG4FDt0DVb7yGFsBJG3.gif');
@@ -13,7 +14,8 @@ let framesBase64List = reactive([]);
 const progressBar = ref(null);
 const framePlayer = ref(null);
 const frameThumbnail = ref(null);
-const parsedImgWrapper = ref(null);
+const dragWrapper = ref(null);
+
 const canvasCache = reactive({
   cache: {},
   getCanvas(id) {
@@ -38,7 +40,7 @@ function frameLoop(frame) {
     }
     img.src = frame;
     updateProgressBar(curFrameIdx.value / frames.length);
-    frameLoop(framesBase64List[curFrameIdx.value]);
+    frameLoop(framesBase64List[curFrameIdx.value].data);
   }, frame.delay || 100);
 }
 
@@ -81,14 +83,14 @@ async function handleBtnClick() {
     .then(buffer => {
       gif = parseGIF(buffer);
       frames = decompressFrames(gif, true);
-      console.log(frames);
 
-      for (let frame of frames) {
+      frames.forEach((frame, idx) => {
         const imgBase64 = drawParsedImgBase64(frame);
-        framesBase64List.push(imgBase64);
-      }
+        framesBase64List.push({ data: imgBase64, id: idx});
+
+      })
     });
-  frameLoop(framesBase64List[curFrameIdx.value]);
+  frameLoop(framesBase64List[curFrameIdx.value].data);
 }
 
 
@@ -118,12 +120,26 @@ const handleMouseMove = (event) => {
   img.onload = () => {
     frameThumbnail.value.getContext('2d').drawImage(img, 0, 0, 160, 100);
   }
-  img.src = framesBase64List[hoverFrameIdx];
+  img.src = framesBase64List[hoverFrameIdx].data;
 };
 
 const handleMouseLeave = () => {
   showFrameThumbnail.value = false;
 }
+
+function onDragUpdate(evt) {
+  debugger
+  const { oldIndex, newIndex, from, item } = evt;
+  item.parentElement.removeChild(item);
+  from.insertBefore(item, oldIndex === 0 ? from.children[0] : from.children[oldIndex - 1].nextSibling);
+  framesBase64List.splice(newIndex, 0, framesBase64List.splice(oldIndex, 1)[0]);
+}
+
+onMounted(() => {
+  Sortable.create(dragWrapper.value, {
+    onUpdate: onDragUpdate
+  });
+})
 
 </script>
 
@@ -140,14 +156,11 @@ const handleMouseLeave = () => {
     <img class="logo" :src="gif_url" width="400" height="250" />
   </header>
 
-  <main>
-    <DraggableWrapper v-model="framesBase64List" ref="parsedImgWrapper" class="parsed-img-wrapper">
-      <template #item="{ element }">
-        <img :src="element" :key="element" />
-      </template>
-
-    </DraggableWrapper>
-  </main>
+    <div ref="dragWrapper" class="parsed-img-wrapper">
+      <TransitionGroup name="parsed-img">
+        <img class="parsed-img-item" v-for="item in framesBase64List" :src="item.data" :key="item.id">
+      </TransitionGroup>
+    </div>
 </template>
 
 <style>
@@ -166,10 +179,17 @@ header {
   grid-gap: 10px;
 }
 
+.parsed-img-move {
+  transition: transform .5s;
+}
+
 .parsed-img-wrapper img {
   width: 217.5px;
 }
 
+.parsed-img-item {
+  cursor: move;
+}
 
 @media (min-width: 1024px) {
   header {

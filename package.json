@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "gifuct-js": "^2.1.2",
-    "vue": "^3.2.47",
-    "vuedraggable": "^4.1.0"
+    "sortablejs": "^1.15.0",
+    "vue": "^3.2.47"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
